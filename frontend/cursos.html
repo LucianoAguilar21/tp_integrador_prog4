@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cursos — FCA</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🎓</span>
+      <div class="sidebar-brand-text"><h1>FCA</h1><small>Gestión Académica</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Menú principal</div>
+      <a href="dashboard.html"     class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="estudiantes.html"   class="nav-item"><span class="nav-icon">👨‍🎓</span><span>Estudiantes</span></a>
+      <a href="cursos.html"        class="nav-item activo"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="inscripciones.html" class="nav-item"><span class="nav-icon">📝</span><span>Inscripciones</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="usuario-avatar" id="usuarioAvatar">--</div>
+        <div>
+          <div class="usuario-nombre" id="usuarioNombre"></div>
+          <div class="usuario-rol"    id="usuarioRol">Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout"><span>🚪</span><span>Cerrar Sesión</span></button>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="main-content">
+    <header class="topbar">
+       <button class="btn-menu-toggle" id="btnMenuToggle" aria-label="Menú">☰</button>
+      <div class="topbar-titulo">📚 Cursos</div>
+      <div class="topbar-acciones">
+        <button class="btn btn-primario" id="btnNuevo">+ Nuevo Curso</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card">
+
+        <!-- Filtros -->
+        <div class="card-header">
+          <div class="filtros-barra" style="flex:1">
+            <div class="form-grupo input-busqueda">
+              <span class="icono-busqueda">🔍</span>
+              <input class="form-control" type="text" id="filtroBusqueda"
+                     placeholder="Buscar por nombre o descripción…">
+            </div>
+            <div class="form-grupo" style="min-width:160px;flex:0">
+              <select class="form-control" id="filtroEstado">
+                <option value="">Todos los estados</option>
+              </select>
+            </div>
+            <button class="btn btn-secundario" id="btnBuscar">Buscar</button>
+            <button class="btn btn-ghost"      id="btnLimpiar">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Inicio</th>
+                <th>Horas</th>
+                <th>Cupo</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody">
+              <tr><td colspan="6" class="tabla-vacia" data-label>
+                <div class="spinner spinner-dark"></div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="paginacion" id="paginacionContainer"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Modal Crear / Editar ─────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modalCurso">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modalTitulo">📚 Nuevo Curso</span>
+      <button class="modal-cerrar" id="btnCerrarModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="formCurso" novalidate>
+        <input type="hidden" id="cursoId">
+
+        <div class="form-grupo">
+          <label class="form-label">Nombre del curso <span class="requerido">*</span></label>
+          <input class="form-control" type="text" id="nombre" maxlength="200"
+                 placeholder="Ej: Excel Avanzado para Administración">
+          <span class="form-error" id="nombreError"></span>
+        </div>
+
+        <div class="form-grupo">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" id="descripcion" rows="3" maxlength="2000"
+                    placeholder="Descripción del contenido, objetivos, requisitos…"
+                    style="resize:vertical"></textarea>
+          <span class="form-error" id="descripcionError"></span>
+        </div>
+
+        <div class="form-fila">
+          <div class="form-grupo">
+            <label class="form-label">Fecha de inicio <span class="requerido">*</span></label>
+            <input class="form-control" type="date" id="fecha_inicio">
+            <span class="form-error" id="fecha_inicioError"></span>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Estado <span class="requerido">*</span></label>
+            <select class="form-control" id="id_curso_estado">
+              <option value="">Seleccione un estado…</option>
+            </select>
+            <span class="form-error" id="id_curso_estadoError"></span>
+          </div>
+        </div>
+
+        <div class="form-fila">
+          <div class="form-grupo">
+            <label class="form-label">Cantidad de horas <span class="requerido">*</span></label>
+            <input class="form-control" type="number" id="cantidad_horas"
+                   min="1" max="9999" placeholder="Ej: 40">
+            <span class="form-error" id="cantidad_horasError"></span>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Cupo máximo <span class="requerido">*</span></label>
+            <input class="form-control" type="number" id="inscriptos_max"
+                   min="1" max="9999" placeholder="Ej: 30">
+            <span class="form-error" id="inscriptos_maxError"></span>
+          </div>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secundario" id="btnCancelarForm">Cancelar</button>
+      <button class="btn btn-primario"   id="btnGuardar">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Ver Inscriptos ─────────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modalInscriptos">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modalInscriptosTitulo">👥 Inscriptos</span>
+      <button class="modal-cerrar" onclick="Modal.cerrar('modalInscriptos')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0">
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Documento</th>
+              <th>Apellido y Nombre</th>
+              <th>Email</th>
+              <th>Fecha Inscripción</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+          <tbody id="tablaInscriptos"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secundario" onclick="Modal.cerrar('modalInscriptos')">Cerrar</button>
+      <button class="btn btn-primario"   id="btnDescargarListado">📄 Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContenedor" class="toast-contenedor"></div>
+<script type="module" src="js/cursos.js"></script>
+</body>
+</html>

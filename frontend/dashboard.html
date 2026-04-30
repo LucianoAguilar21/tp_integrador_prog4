@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — FCA</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🎓</span>
+      <div class="sidebar-brand-text">
+        <h1>FCA</h1>
+        <small>Gestión Académica</small>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Menú principal</div>
+      <a href="dashboard.html"      class="nav-item activo"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="estudiantes.html"    class="nav-item"><span class="nav-icon">👨‍🎓</span><span>Estudiantes</span></a>
+      <a href="cursos.html"         class="nav-item"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="inscripciones.html"  class="nav-item"><span class="nav-icon">📝</span><span>Inscripciones</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="usuario-avatar" id="usuarioAvatar">--</div>
+        <div>
+          <div class="usuario-nombre" id="usuarioNombre">Cargando…</div>
+          <div class="usuario-rol"    id="usuarioRol">Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout">
+        <span>🚪</span><span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="main-content">
+    <header class="topbar">
+      <button class="btn-menu-toggle" id="btnMenuToggle" aria-label="Menú">☰</button>
+      <div class="topbar-titulo">📊 Dashboard</div>
+      <div class="topbar-acciones">
+        <span id="fechaHoy" style="font-size:.83rem;color:var(--color-texto-sec)"></span>
+      </div>
+    </header>
+
+    <div class="page-content">
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <div class="stat-icon azul">👨‍🎓</div>
+          <div class="stat-info"><div class="stat-valor" id="statEstudiantes">—</div><div class="stat-label">Estudiantes Activos</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon verde">📚</div>
+          <div class="stat-info"><div class="stat-valor" id="statCursos">—</div><div class="stat-label">Cursos Activos</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon naranja">📝</div>
+          <div class="stat-info"><div class="stat-valor" id="statInscripciones">—</div><div class="stat-label">Inscripciones Activas</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon violeta">🏅</div>
+          <div class="stat-info"><div class="stat-valor" id="statAprobados">—</div><div class="stat-label">Aprobados</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon dorado">📋</div>
+          <div class="stat-info"><div class="stat-valor" id="statTotal">—</div><div class="stat-label">Total Inscripciones</div></div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+
+        <!-- Cursos activos -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">📚 Cursos Activos</span>
+            <a href="cursos.html" class="btn btn-sm btn-secundario">Ver todos</a>
+          </div>
+          <div class="card-body" id="cursosActivosContainer">
+            <div style="text-align:center;padding:20px;color:var(--color-texto-sec)">
+              <span class="spinner spinner-dark"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actividad reciente -->
+        <div class="card">
+          <div class="card-header">
+            <span class="card-title">🕐 Últimas Inscripciones</span>
+            <a href="inscripciones.html" class="btn btn-sm btn-secundario">Ver todas</a>
+          </div>
+          <div class="tabla-contenedor">
+            <table class="tabla" id="tablaRecientes">
+              <thead>
+                <tr>
+                  <th>Estudiante</th>
+                  <th>Curso</th>
+                  <th>Fecha</th>
+                  <th>Estado</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyRecientes">
+                <tr><td colspan="4" style="text-align:center;padding:20px">
+                  <span class="spinner spinner-dark"></span>
+                </td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-content -->
+  </main>
+</div>
+
+<div id="toastContenedor" class="toast-contenedor"></div>
+
+<script type="module" src="js/dashboard.js"></script>
+</body>
+</html>

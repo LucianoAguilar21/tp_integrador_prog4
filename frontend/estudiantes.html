@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estudiantes — FCA</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🎓</span>
+      <div class="sidebar-brand-text"><h1>FCA</h1><small>Gestión Académica</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Menú principal</div>
+      <a href="dashboard.html"     class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="estudiantes.html"   class="nav-item activo"><span class="nav-icon">👨‍🎓</span><span>Estudiantes</span></a>
+      <a href="cursos.html"        class="nav-item"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="inscripciones.html" class="nav-item"><span class="nav-icon">📝</span><span>Inscripciones</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="usuario-avatar" id="usuarioAvatar">--</div>
+        <div><div class="usuario-nombre" id="usuarioNombre"></div><div class="usuario-rol" id="usuarioRol">Admin</div></div>
+      </div>
+      <button class="btn-logout" id="btnLogout"><span>🚪</span><span>Cerrar Sesión</span></button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+       <button class="btn-menu-toggle" id="btnMenuToggle" aria-label="Menú">☰</button>
+      <div class="topbar-titulo">👨‍🎓 Estudiantes</div>
+      <div class="topbar-acciones">
+        <button class="btn btn-primario" id="btnNuevo">+ Nuevo Estudiante</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card">
+        <!-- Filtros -->
+        <div class="card-header">
+          <div class="filtros-barra" style="flex:1">
+            <div class="form-grupo input-busqueda">
+              <span class="icono-busqueda">🔍</span>
+              <input class="form-control" type="text" id="filtroBusqueda"
+                     placeholder="Buscar por nombre, apellido o email…">
+            </div>
+            <div class="form-grupo">
+              <input class="form-control" type="text" id="filtroDocumento"
+                     placeholder="Documento exacto…">
+            </div>
+            <div class="form-grupo" style="min-width:140px;flex:0">
+              <select class="form-control" id="filtroActivo">
+                <option value="">Todos</option>
+                <option value="true" selected>Activos</option>
+                <option value="false">Inactivos</option>
+              </select>
+            </div>
+            <button class="btn btn-secundario" id="btnBuscar">Buscar</button>
+            <button class="btn btn-ghost"      id="btnLimpiar">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Documento</th>
+                <th>Apellido y Nombre</th>
+                <th>Email</th>
+                <th>Fecha Nac.</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody">
+              <tr><td colspan="6" class="tabla-vacia" data-label>
+                <div class="spinner spinner-dark"></div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="paginacion" id="paginacionContainer"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Crear/Editar -->
+<div class="modal-backdrop" id="modalEstudiante">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo" id="modalTitulo">👨‍🎓 Nuevo Estudiante</span>
+      <button class="modal-cerrar" id="btnCerrarModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="formEstudiante" novalidate>
+        <input type="hidden" id="estudianteId">
+        <div class="form-fila">
+          <div class="form-grupo">
+            <label class="form-label">Apellido <span class="requerido">*</span></label>
+            <input class="form-control" type="text" id="apellido" maxlength="100">
+            <span class="form-error" id="apellidoError"></span>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Nombre <span class="requerido">*</span></label>
+            <input class="form-control" type="text" id="nombre" maxlength="100">
+            <span class="form-error" id="nombreError"></span>
+          </div>
+        </div>
+        <div class="form-fila">
+          <div class="form-grupo">
+            <label class="form-label">Documento <span class="requerido">*</span></label>
+            <input class="form-control" type="text" id="documento" maxlength="20">
+            <span class="form-error" id="documentoError"></span>
+          </div>
+          <div class="form-grupo">
+            <label class="form-label">Fecha de Nacimiento <span class="requerido">*</span></label>
+            <input class="form-control" type="date" id="fecha_nacimiento">
+            <span class="form-error" id="fecha_nacimientoError"></span>
+          </div>
+        </div>
+        <div class="form-grupo">
+          <label class="form-label">Email <span class="requerido">*</span></label>
+          <input class="form-control" type="email" id="email" maxlength="150">
+          <span class="form-error" id="emailError"></span>
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secundario" id="btnCancelarForm">Cancelar</button>
+      <button class="btn btn-primario"   id="btnGuardar">💾 Guardar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContenedor" class="toast-contenedor"></div>
+<script type="module" src="js/estudiantes.js"></script>
+</body>
+</html>

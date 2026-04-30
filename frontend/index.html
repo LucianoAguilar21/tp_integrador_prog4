@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Iniciar Sesión — FCA</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/auth.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-card">
+  <div class="auth-header">
+    <div class="auth-logo">🎓</div>
+    <h1>Facultad de Ciencias<br>de la Administración</h1>
+    <p>Sistema de Gestión Académica</p>
+  </div>
+
+  <div class="auth-body-inner">
+    <h2>Bienvenido</h2>
+    <p class="subtitulo">Ingrese sus credenciales para continuar</p>
+
+    <form id="loginForm" novalidate>
+      <div class="form-grupo">
+        <label class="form-label" for="nombre_usuario">
+          Usuario <span class="requerido">*</span>
+        </label>
+        <input class="form-control" type="text" id="nombre_usuario"
+               name="nombre_usuario" placeholder="nombre.usuario"
+               autocomplete="username" autofocus>
+        <span class="form-error" id="nombre_usuarioError"></span>
+      </div>
+
+      <div class="form-grupo">
+        <label class="form-label" for="contrasena">
+          Contraseña <span class="requerido">*</span>
+        </label>
+        <div class="input-busqueda" style="position:relative">
+          <input class="form-control" type="password" id="contrasena"
+                 name="contrasena" placeholder="••••••••"
+                 autocomplete="current-password">
+          <button type="button" id="togglePass"
+                  style="position:absolute;right:10px;top:50%;transform:translateY(-50%);
+                         background:none;border:none;cursor:pointer;color:var(--color-texto-sec);font-size:1rem;">
+            👁
+          </button>
+        </div>
+        <span class="form-error" id="contrasenaError"></span>
+      </div>
+
+      <div id="errorLogin" style="display:none;padding:10px 14px;background:var(--color-error-bg);
+           color:var(--color-error);border-radius:var(--radio);font-size:.85rem;margin-bottom:14px;"></div>
+
+      <button type="submit" class="btn btn-primario btn-lg btn-bloque" id="btnLogin">
+        Iniciar Sesión
+      </button>
+    </form>
+  </div>
+
+  <div class="auth-footer">
+    Sistema de Inscripción a Cursos &copy; 2025
+  </div>
+</div>
+
+<div id="toastContenedor" class="toast-contenedor"></div>
+
+<script type="module">
+  import { CONFIG }           from './js/config.js';
+  import { Auth }             from './js/auth.js';
+  import { Helpers }          from './js/utils.js';
+
+  // Redirigir si ya está autenticado
+  if (Auth.estaAutenticado()) window.location.href = '/dashboard.html';
+
+  const form    = document.getElementById('loginForm');
+  const btnLogin= document.getElementById('btnLogin');
+  const errDiv  = document.getElementById('errorLogin');
+
+  // Toggle visibilidad contraseña
+  document.getElementById('togglePass').addEventListener('click', () => {
+    const input = document.getElementById('contrasena');
+    input.type  = input.type === 'password' ? 'text' : 'password';
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nombre_usuario = document.getElementById('nombre_usuario').value.trim();
+    const contrasena     = document.getElementById('contrasena').value;
+
+    // Validación básica client-side
+    let valido = true;
+    Helpers.limpiarErrores('loginForm');
+    errDiv.style.display = 'none';
+
+    if (!nombre_usuario) {
+      Helpers.marcarError('nombre_usuario', 'Ingrese su nombre de usuario');
+      valido = false;
+    }
+    if (!contrasena) {
+      Helpers.marcarError('contrasena', 'Ingrese su contraseña');
+      valido = false;
+    }
+    if (!valido) return;
+
+    Helpers.setLoading(btnLogin, true);
+
+    try {
+      const res = await fetch(`${CONFIG.API_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nombre_usuario, contrasena }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errDiv.textContent  = data.message || 'Credenciales inválidas';
+        errDiv.style.display = 'block';
+        return;
+      }
+
+      Auth.guardarSesion(data.data.token, data.data.usuario);
+      window.location.href = '/dashboard.html';
+
+    } catch {
+      errDiv.textContent  = 'No se puede conectar al servidor.';
+      errDiv.style.display = 'block';
+    } finally {
+      Helpers.setLoading(btnLogin, false, '🔑 Iniciar Sesión');
+    }
+  });
+</script>
+</body>
+</html>

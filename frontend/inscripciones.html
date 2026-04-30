@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscripciones — FCA</title>
+  <link rel="stylesheet" href="css/main.css">
+  <link rel="stylesheet" href="css/components.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-icon">🎓</span>
+      <div class="sidebar-brand-text"><h1>FCA</h1><small>Gestión Académica</small></div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Menú principal</div>
+      <a href="dashboard.html"     class="nav-item"><span class="nav-icon">📊</span><span>Dashboard</span></a>
+      <a href="estudiantes.html"   class="nav-item"><span class="nav-icon">👨‍🎓</span><span>Estudiantes</span></a>
+      <a href="cursos.html"        class="nav-item"><span class="nav-icon">📚</span><span>Cursos</span></a>
+      <a href="inscripciones.html" class="nav-item activo"><span class="nav-icon">📝</span><span>Inscripciones</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="usuario-info">
+        <div class="usuario-avatar" id="usuarioAvatar">--</div>
+        <div>
+          <div class="usuario-nombre" id="usuarioNombre"></div>
+          <div class="usuario-rol"    id="usuarioRol">Admin</div>
+        </div>
+      </div>
+      <button class="btn-logout" id="btnLogout"><span>🚪</span><span>Cerrar Sesión</span></button>
+    </div>
+  </aside>
+
+  <!-- Contenido -->
+  <main class="main-content">
+    <header class="topbar">
+       <button class="btn-menu-toggle" id="btnMenuToggle" aria-label="Menú">☰</button>
+      <div class="topbar-titulo">📝 Inscripciones</div>
+      <div class="topbar-acciones">
+        <button class="btn btn-primario" id="btnNueva">+ Nueva Inscripción</button>
+      </div>
+    </header>
+
+    <div class="page-content">
+      <div class="card">
+
+        <!-- Filtros -->
+        <div class="card-header">
+          <div class="filtros-barra" style="flex:1">
+            <div class="form-grupo" style="min-width:200px;flex:2">
+              <select class="form-control" id="filtroCurso">
+                <option value="">Todos los cursos</option>
+              </select>
+            </div>
+            <div class="form-grupo" style="min-width:200px;flex:2">
+              <select class="form-control" id="filtroEstudiante">
+                <option value="">Todos los estudiantes</option>
+              </select>
+            </div>
+            <div class="form-grupo" style="min-width:150px;flex:0">
+              <select class="form-control" id="filtroEstado">
+                <option value="">Todos los estados</option>
+              </select>
+            </div>
+            <button class="btn btn-secundario" id="btnBuscar">Buscar</button>
+            <button class="btn btn-ghost"      id="btnLimpiar">Limpiar</button>
+          </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th>Estudiante</th>
+                <th>Curso</th>
+                <th>Fecha Inscripción</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody">
+              <tr><td colspan="5" class="tabla-vacia">
+                <div class="spinner spinner-dark"></div>
+              </td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="paginacion" id="paginacionContainer"></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ── Modal Nueva Inscripción ──────────────────────────────────────────── -->
+<div class="modal-backdrop" id="modalInscripcion">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo">📝 Nueva Inscripción</span>
+      <button class="modal-cerrar" id="btnCerrarModal">✕</button>
+    </div>
+    <div class="modal-body">
+      <form id="formInscripcion" novalidate>
+
+        <div class="form-grupo">
+          <label class="form-label">Curso <span class="requerido">*</span></label>
+          <select class="form-control" id="id_curso">
+            <option value="">Cargando cursos…</option>
+          </select>
+          <span class="form-error" id="id_cursoError"></span>
+        </div>
+
+        <!-- Info de cupo (se actualiza al elegir curso) -->
+        <div id="infoCupo" style="display:none;margin-bottom:16px;padding:10px 14px;
+             border-radius:var(--radio);font-size:.85rem;background:var(--color-info-bg);
+             color:var(--color-info);border:1px solid #bbdefb">
+        </div>
+
+        <div class="form-grupo">
+          <label class="form-label">Estudiante <span class="requerido">*</span></label>
+          <select class="form-control" id="id_estudiante">
+            <option value="">Cargando estudiantes…</option>
+          </select>
+          <span class="form-error" id="id_estudianteError"></span>
+        </div>
+
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secundario" id="btnCancelarForm">Cancelar</button>
+      <button class="btn btn-primario"   id="btnGuardar">📝 Inscribir</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modal Ver Detalle Inscripción ───────────────────────────────────── -->
+<div class="modal-backdrop" id="modalDetalle">
+  <div class="modal">
+    <div class="modal-header">
+      <span class="modal-titulo">🔍 Detalle de Inscripción</span>
+      <button class="modal-cerrar" onclick="Modal.cerrar('modalDetalle')">✕</button>
+    </div>
+    <div class="modal-body" id="modalDetalleBody">
+    </div>
+    <div class="modal-footer" id="modalDetalleFooter">
+      <button class="btn btn-secundario" onclick="Modal.cerrar('modalDetalle')">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<div id="toastContenedor" class="toast-contenedor"></div>
+<script type="module" src="js/inscripciones.js"></script>
+</body>
+</html>
