@@ -8,7 +8,6 @@ Aplicación web para la gestión de inscripciones.
 .
 ├── backend/        # API REST (Node.js)
 ├── frontend/       # Interfaz web
-└── dumpsql/        # Scripts de base de datos
 ```
 
 ---
@@ -18,7 +17,7 @@ Aplicación web para la gestión de inscripciones.
 ## Requisitos
 
 - Node.js
-- MySQL
+- Postgresql
 
 ## Instalación
 
@@ -82,13 +81,7 @@ Crear la base de datos:
 CREATE DATABASE facultad_inscripciones;
 ```
 
-Importar el dump inicial:
-
-```
-dumpsql/01-Creacion y datos iniciales.sql
-```
-
-También disponible en:
+Importar el dump inicial disponible en:
 
 https://campus.uner.edu.ar/fcad/pluginfile.php?file=%2F131543%2Fmod_resource%2Fcontent%2F5%2F01-Creaci%C3%B3n%20y%20datos%20iniciales.sql
 
@@ -118,7 +111,7 @@ http://127.0.0.1:5500
 - Express
 - JWT
 - Bcrypt
-- MySQL
+- Postgres
 
 ## Frontend
 - HTML
