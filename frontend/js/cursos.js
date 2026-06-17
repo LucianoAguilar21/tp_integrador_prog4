@@ -143,7 +143,7 @@ window.verInscriptos = async (id, nombre) => {
         <tr>
           <td>${idx + 1}</td>
           <td><code style="font-size:.82rem">${i.documento}</code></td>
-          <td><strong>${i.apellido}</strong>, ${i.nombre}</td>
+          <td><strong>${i.apellido}</strong>, ${i.nombres}</td>
           <td style="font-size:.82rem">${i.email}</td>
           <td style="font-size:.78rem;white-space:nowrap">
             ${Helpers.formatFechaHora(i.fecha_hora_inscripcion)}</td>

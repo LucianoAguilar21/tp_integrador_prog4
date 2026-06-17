@@ -296,7 +296,7 @@ const PdfService = {
       doc.text(String(index + 1),     cols.n,       currentY, { width: 15 });
       doc.text(ins.documento,         cols.doc,     currentY, { width: 60 });
       doc.text(ins.apellido,          cols.apellido,currentY, { width: 115 });
-      doc.text(ins.nombre,            cols.nombre,  currentY, { width: 95 });
+      doc.text(ins.nombres,            cols.nombre,  currentY, { width: 95 });
       doc.text(ins.email,             cols.email,   currentY, { width: 135 });
       doc.text(ins.estado_inscripcion,cols.estado,  currentY, { width: 60 });
 
