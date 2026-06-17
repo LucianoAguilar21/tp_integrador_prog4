@@ -40,28 +40,7 @@ async function cargarEstudiantes() {
           <p>Pruebe con otros criterios de búsqueda</p>
         </div></td></tr>`;
     } else {
-      // tbody.innerHTML = res.data.map(e => `
-      //   <tr>
-      //     <td><code style="font-size:.83rem">${e.documento}</code></td>
-      //     <td><strong>${e.apellido}</strong>, ${e.nombre}</td>
-      //     <td>${e.email}</td>
-      //     <td>${Helpers.formatFecha(e.fecha_nacimiento)}</td>
-      //     <td>${Helpers.badgeActivo(e.activo)}</td>
-      //     <td class="td-acciones">
-      //       <div class="acciones">
-      //         <button class="btn-icon" title="Ver detalles"
-      //           onclick="verEstudiante(${e.id})">👁</button>
-      //         ${e.activo
-      //           ? `<button class="btn-icon exito" title="Editar"
-      //                onclick="editarEstudiante(${e.id})">✏️</button>
-      //              <button class="btn-icon peligro" title="Desactivar"
-      //                onclick="eliminarEstudiante(${e.id}, '${e.apellido} ${e.nombre}')">🗑</button>`
-      //           : `<button class="btn-icon" title="Restaurar"
-      //                onclick="restaurarEstudiante(${e.id}, '${e.apellido} ${e.nombre}')">♻️</button>`
-      //         }
-      //       </div>
-      //     </td>
-      //   </tr>`).join('');
+   
       tbody.innerHTML = res.data.map(e => `
   <tr>
     <td data-label="Documento">

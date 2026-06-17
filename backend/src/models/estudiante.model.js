@@ -545,7 +545,7 @@ const EstudianteModel = {
   async softDelete(id, id_usuario) {
     const { rowCount } = await pool.query(
       `UPDATE estudiantes
-       SET activo                  = 1,
+       SET activo                  = 0,
            id_usuario_modificacion = $1,
            fecha_hora_modificacion = NOW()
        WHERE id_estudiante = $2 AND activo = 1`,

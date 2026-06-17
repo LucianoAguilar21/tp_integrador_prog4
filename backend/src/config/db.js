@@ -44,10 +44,27 @@ const pool = new Pool({
 
 console.log('DB_PASSWORD type:', typeof process.env.DB_PASSWORD, JSON.stringify(process.env.DB_PASSWORD));
 
+const syncSerialSequence = async (client, table, column) => {
+  const { rows } = await client.query(
+    `SELECT pg_get_serial_sequence($1, $2) AS seqname`,
+    [table, column]
+  );
+  const seqname = rows[0]?.seqname;
+  if (!seqname) return;
+
+  await client.query(
+    `SELECT setval($1,
+      COALESCE((SELECT MAX(${column}) FROM ${table}), 0),
+      true
+    )`,
+    [seqname]
+  );
+};
 
 const testConnection = async () => {
   try {
     const client = await pool.connect();
+    await syncSerialSequence(client, 'cursos', 'id_curso');
     console.log(`Base de datos conectada: ${process.env.DB_NAME}`);
     client.release();
   } catch (error) {

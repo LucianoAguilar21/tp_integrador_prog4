@@ -48,7 +48,7 @@ const EstudianteController = {
 
       const estudiante = await EstudianteService.crear(
         req.body,
-        req.usuario.id
+        req.usuario.id_usuario
       );
       return res.status(201).json({
         success: true,
@@ -91,7 +91,7 @@ const EstudianteController = {
     try {
       const resultado = await EstudianteService.eliminar(
         parseInt(req.params.id),
-        req.usuario.id
+        req.usuario.id_usuario
       );
       return res.status(200).json({ success: true, data: resultado });
     } catch (error) {
@@ -106,7 +106,7 @@ const EstudianteController = {
     try {
       const estudiante = await EstudianteService.restaurar(
         parseInt(req.params.id),
-        req.usuario.id
+        req.usuario.id_usuario
       );
       return res.status(200).json({
         success: true,

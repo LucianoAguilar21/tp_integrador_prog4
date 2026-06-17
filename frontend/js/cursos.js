@@ -66,6 +66,7 @@ async function cargarCursos() {
         </div></td></tr>`;
     } else {
     
+      console.log('Cursos cargados:', res.data);
       
       tbody.innerHTML = res.data.map(c => `
   <tr>

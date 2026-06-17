@@ -59,7 +59,9 @@ const CursoModel = {
        LEFT JOIN  inscripciones i   ON i.id_curso = c.id_curso
                                    AND i.id_inscripcion_estado = (
                                      SELECT id_inscripcion_estado FROM inscripciones_estados
-                                     WHERE descripcion = 'Inscripto' LIMIT 1
+                                     WHERE descripcion ILIKE 'CONFIRMADA'
+                                       AND es_activo = 1
+                                     LIMIT 1
                                    )
        ${whereClause}
        GROUP BY c.id_curso, c.nombre, c.descripcion, c.fecha_inicio, c.cantidad_horas,
@@ -91,14 +93,16 @@ const CursoModel = {
          c.fecha_hora_modificacion,
          c.id_usuario_modificacion,
          CONCAT(u.apellido, ', ', u.nombre) AS usuario_modificacion,
-         COUNT(i.id_inscripcion)             AS inscriptos_actuales
+         COUNT(i.id_inscripcion) AS inscriptos_actuales
        FROM cursos c
        INNER JOIN cursos_estados ce ON ce.id_curso_estado = c.id_curso_estado
        LEFT JOIN  usuarios u        ON u.id_usuario = c.id_usuario_modificacion
        LEFT JOIN  inscripciones i   ON i.id_curso = c.id_curso
                                    AND i.id_inscripcion_estado = (
                                      SELECT id_inscripcion_estado FROM inscripciones_estados
-                                     WHERE descripcion = 'Inscripto' LIMIT 1
+                                     WHERE descripcion ILIKE 'CONFIRMADA'
+                                       AND es_activo = 1
+                                     LIMIT 1
                                    )
        WHERE c.id_curso = $1
        GROUP BY  
@@ -191,7 +195,7 @@ const CursoModel = {
        LEFT JOIN inscripciones i ON i.id_curso = c.id_curso
                                 AND i.id_inscripcion_estado = (
                                   SELECT id_inscripcion_estado FROM inscripciones_estados
-                                  WHERE descripcion = 'Inscripto' LIMIT 1
+                                  WHERE descripcion ILIKE 'CONFIRMADA' LIMIT 1
                                 )
        WHERE c.id_curso = $1
        GROUP BY c.id_curso`,

@@ -24,11 +24,13 @@ const DashboardModel = {
            AS total_inscripciones,
          (SELECT COUNT(*) FROM inscripciones i
           INNER JOIN inscripciones_estados ie ON ie.id_inscripcion_estado = i.id_inscripcion_estado
-          WHERE ie.descripcion = 'CONFIRMADA')::int
+          WHERE ie.descripcion ILIKE 'CONFIRMADA'
+            AND ie.es_activo = 1)::int
            AS inscripciones_activas,
          (SELECT COUNT(*) FROM inscripciones i
           INNER JOIN inscripciones_estados ie ON ie.id_inscripcion_estado = i.id_inscripcion_estado
-          WHERE ie.descripcion = 'CONFIRMADA')::int
+          WHERE ie.descripcion ILIKE 'CONFIRMADA'
+            AND ie.es_activo = 1)::int
            AS inscripciones_aprobadas,
          (SELECT COUNT(*) FROM inscripciones i
           INNER JOIN inscripciones_estados ie ON ie.id_inscripcion_estado = i.id_inscripcion_estado
