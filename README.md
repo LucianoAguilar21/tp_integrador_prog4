@@ -128,4 +128,4 @@ http://127.0.0.1:5500
 
 # Usuario para login
 - lbianchi
-- Admin1234
+- Admin123
