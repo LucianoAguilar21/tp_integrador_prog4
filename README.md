@@ -125,3 +125,7 @@ http://127.0.0.1:5500
 - Verificar que MySQL esté ejecutándose antes de iniciar el backend.
 - El archivo `.env` no debe subirse al repositorio.
 - Cambiar `JWT_SECRET` antes de usar en producción.
+
+# Usuario para login
+- lbianchi
+- Admin1234
