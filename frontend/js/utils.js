@@ -104,6 +104,9 @@ document.addEventListener('click', (e) => {
   if (e.target.classList.contains('modal-backdrop')) Modal.cerrarActual();
 });
 
+// Hacer que Modal sea accesible desde inline onclick en HTML
+window.Modal = Modal;
+
 // ─── Paginación ───────────────────────────────────────────────────────────────
 const Paginacion = {
   render(contenedorId, paginacion, onCambiar) {

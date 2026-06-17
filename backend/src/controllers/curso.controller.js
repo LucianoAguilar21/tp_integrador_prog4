@@ -30,7 +30,7 @@ const CursoController = {
   // GET /api/cursos/:id
   async read(req, res, next) {
     try {
-      const curso = await CursoService.obtenerPorId(parseInt(req.params.id));
+      const curso = await CursoService.obtenerPorId(parseInt(req.params.id, 10));
       return res.status(200).json({ success: true, data: curso });
     } catch (error) { next(error); }
   },
@@ -41,7 +41,7 @@ const CursoController = {
       const errores = validationResult(req);
       if (!errores.isEmpty()) return responderValidacion(res, errores);
 
-      const curso = await CursoService.crear(req.body, req.usuario.id);
+      const curso = await CursoService.crear(req.body, req.usuario.id_usuario);
       return res.status(201).json({
         success: true,
         message: 'Curso creado exitosamente',
@@ -57,7 +57,7 @@ const CursoController = {
       if (!errores.isEmpty()) return responderValidacion(res, errores);
 
       const curso = await CursoService.actualizar(
-        parseInt(req.params.id), req.body, req.usuario.id
+        parseInt(req.params.id, 10), req.body, req.usuario.id_usuario
       );
       return res.status(200).json({
         success: true,
@@ -71,7 +71,7 @@ const CursoController = {
   async delete(req, res, next) {
     try {
       const resultado = await CursoService.eliminar(
-        parseInt(req.params.id), req.usuario.id
+        parseInt(req.params.id, 10), req.usuario.id_usuario
       );
       return res.status(200).json({ success: true, data: resultado });
     } catch (error) { next(error); }
@@ -80,7 +80,7 @@ const CursoController = {
   // GET /api/cursos/:id/inscriptos
   async inscriptos(req, res, next) {
     try {
-      const data = await CursoService.obtenerInscriptos(parseInt(req.params.id));
+      const data = await CursoService.obtenerInscriptos(parseInt(req.params.id, 10));
       return res.status(200).json({ success: true, data });
     } catch (error) { next(error); }
   },
@@ -89,7 +89,7 @@ const CursoController = {
   async pdfListado(req, res, next) {
     try {
       const { curso, inscriptos } = await CursoService.obtenerInscriptos(
-        parseInt(req.params.id)
+        parseInt(req.params.id, 10)
       );
 
       // Nombre de archivo seguro (sin caracteres especiales)
@@ -112,10 +112,10 @@ const CursoController = {
   async pdfDiploma(req, res, next) {
     try {
       const { curso, inscriptos } = await CursoService.obtenerInscriptos(
-        parseInt(req.params.id)
+        parseInt(req.params.id, 10)
       );
 
-      const idEstudiante = parseInt(req.params.id_estudiante);
+      const idEstudiante = parseInt(req.params.id_estudiante, 10);
       const estudiante   = inscriptos.find((i) => i.id === idEstudiante);
 
       if (!estudiante) {

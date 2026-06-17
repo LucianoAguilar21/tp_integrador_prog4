@@ -21,6 +21,9 @@ let estado = {
 // Cache de cursos para el info de cupo
 let cacheCursos = [];
 
+// Estados de inscripciones (cargados desde API)
+let estadosInscripciones = [];
+
 // ─── Cargar selects de filtros y formulario ────────────────────────────────────
 async function cargarSelects() {
   try {
@@ -37,31 +40,33 @@ async function cargarSelects() {
     const filtroCurso = document.getElementById('filtroCurso');
     resCursos.data.forEach(c => {
       filtroCurso.innerHTML +=
-        `<option value="${c.id}">${c.nombre} (${c.estado})</option>`;
+        `<option value="${c.id_curso}">${c.nombre} (${c.estado})</option>`;
     });
 
     const filtroEst = document.getElementById('filtroEstudiante');
     resEstudiantes.data.forEach(e => {
       filtroEst.innerHTML +=
-        `<option value="${e.id}">${e.apellido}, ${e.nombre} — ${e.documento}</option>`;
+        `<option value="${e.id_estudiante}">${e.apellido}, ${e.nombres} — ${e.documento}</option>`;
     });
 
     const filtroEst2 = document.getElementById('filtroEstado');
+    estadosInscripciones = resEstados.data;
     resEstados.data.forEach(e => {
-      filtroEst2.innerHTML += `<option value="${e.id}">${e.descripcion}</option>`;
+      filtroEst2.innerHTML += `<option value="${e.id_estado}">${e.descripcion}</option>`;
     });
 
     // ── Select FORMULARIO — solo cursos activos ────────────────────────────
     const formCurso = document.getElementById('id_curso');
     formCurso.innerHTML = '<option value="">Seleccione un curso…</option>';
+    
     resCursos.data
-      .filter(c => c.estado?.toLowerCase() === 'activo')
+      .filter(c => c.estado.toLowerCase() == 'INSCRIPCIÓN ABIERTA'.toLowerCase())
       .forEach(c => {
         const cupoLabel = c.inscriptos_actuales >= c.inscriptos_max
           ? '🔴 Sin cupo'
           : `🟢 ${c.cupo_disponible ?? (c.inscriptos_max - c.inscriptos_actuales)} disponibles`;
         formCurso.innerHTML +=
-          `<option value="${c.id}"
+          `<option value="${c.id_curso}"
             ${c.inscriptos_actuales >= c.inscriptos_max ? 'disabled' : ''}>
             ${c.nombre} — ${cupoLabel}
           </option>`;
@@ -72,7 +77,7 @@ async function cargarSelects() {
     formEst.innerHTML = '<option value="">Seleccione un estudiante…</option>';
     resEstudiantes.data.forEach(e => {
       formEst.innerHTML +=
-        `<option value="${e.id}">${e.apellido}, ${e.nombre} — ${e.documento}</option>`;
+        `<option value="${e.id_estudiante}">${e.apellido}, ${e.nombres} — ${e.documento}</option>`;
     });
 
   } catch (err) {
@@ -84,7 +89,7 @@ async function cargarSelects() {
 document.getElementById('id_curso')
   ?.addEventListener('change', function () {
     const infoCupo = document.getElementById('infoCupo');
-    const curso = cacheCursos.find(c => c.id === parseInt(this.value));
+    const curso = cacheCursos.find(c => c.id_curso === parseInt(this.value));
 
     if (!curso) { infoCupo.style.display = 'none'; return; }
 
@@ -211,16 +216,16 @@ async function cargarInscripciones() {
     <td class="td-acciones">
       <div class="acciones">
         <button class="btn-icon" title="Ver detalle"
-          onclick="verDetalle(${i.id})">👁</button>
+          onclick="verDetalle(${i.id_inscripcion ?? i.id})">👁</button>
         ${esInscripto ? `
           <button class="btn-icon exito" title="Aprobar"
-            onclick="aprobarInscripcion(${i.id}, '${escapar(i.estudiante)}')">✅</button>
+            onclick="aprobarInscripcion(${i.id_inscripcion ?? i.id}, '${escapar(i.estudiante)}')">✅</button>
           <button class="btn-icon peligro" title="Cancelar"
-            onclick="cancelarInscripcion(${i.id}, '${escapar(i.estudiante)}')">❌</button>
+            onclick="cancelarInscripcion(${i.id_inscripcion ?? i.id}, '${escapar(i.estudiante)}')">❌</button>
         ` : ''}
         ${esAprobado ? `
           <button class="btn-icon exito" title="Diploma"
-            onclick="descargarDiploma(${i.id}, '${escapar(i.estudiante)}', this)">🏅</button>
+            onclick="descargarDiploma(${i.id_inscripcion ?? i.id}, '${escapar(i.estudiante)}', this)">🏅</button>
         ` : ''}
       </div>
     </td>
@@ -246,6 +251,11 @@ function escapar(str) {
 
 // ─── Ver detalle ───────────────────────────────────────────────────────────────
 window.verDetalle = async (id) => {
+  if (!id) {
+    Toast.error('Error', 'ID de inscripción inválido');
+    return;
+  }
+
   try {
     const { data: i } = await Api.get(`/inscripciones/${id}`);
 
@@ -398,7 +408,11 @@ document.getElementById('btnGuardar')
     Helpers.setLoading(btn, true);
 
     try {
-      await Api.post('/inscripciones', { id_curso, id_estudiante });
+      const payload = { id_curso, id_estudiante };
+      const estadoConfirmada = estadosInscripciones.find(s => s.descripcion.toUpperCase() === 'CONFIRMADA');
+      if (estadoConfirmada) payload.id_estado = estadoConfirmada.id_estado;
+
+      await Api.post('/inscripciones', payload);
       Toast.exito('Inscripción realizada', 'El estudiante fue inscripto exitosamente');
       Modal.cerrar('modalInscripcion');
       estado.pagina = 1;

@@ -71,7 +71,7 @@ const EstudianteController = {
       const estudiante = await EstudianteService.actualizar(
         parseInt(req.params.id),
         req.body,
-        req.usuario.id
+        req.usuario.id_usuario
       );
       return res.status(200).json({
         success: true,

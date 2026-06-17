@@ -29,8 +29,11 @@ const InscripcionController = {
   // GET /api/inscripciones/:id
   async read(req, res, next) {
     try {
+      const errores = validationResult(req);
+      if (!errores.isEmpty()) return responderValidacion(res, errores);
+
       const inscripcion = await InscripcionService.obtenerPorId(
-        parseInt(req.params.id)
+        parseInt(req.params.id, 10)
       );
       return res.status(200).json({ success: true, data: inscripcion });
     } catch (error) { next(error); }
@@ -44,7 +47,7 @@ const InscripcionController = {
 
       const inscripcion = await InscripcionService.inscribir(
         req.body,
-        req.usuario.id
+        req.usuario.id_usuario
       );
       return res.status(201).json({
         success: true,
@@ -57,9 +60,12 @@ const InscripcionController = {
   // PATCH /api/inscripciones/:id/cancelar
   async cancelar(req, res, next) {
     try {
+      const errores = validationResult(req);
+      if (!errores.isEmpty()) return responderValidacion(res, errores);
+
       const inscripcion = await InscripcionService.cancelar(
-        parseInt(req.params.id),
-        req.usuario.id
+        parseInt(req.params.id, 10),
+        req.usuario.id_usuario
       );
       return res.status(200).json({
         success: true,
@@ -72,9 +78,12 @@ const InscripcionController = {
   // PATCH /api/inscripciones/:id/aprobar
   async aprobar(req, res, next) {
     try {
+      const errores = validationResult(req);
+      if (!errores.isEmpty()) return responderValidacion(res, errores);
+
       const inscripcion = await InscripcionService.aprobar(
-        parseInt(req.params.id),
-        req.usuario.id
+        parseInt(req.params.id, 10),
+        req.usuario.id_usuario
       );
       return res.status(200).json({
         success: true,
@@ -87,8 +96,11 @@ const InscripcionController = {
   // GET /api/inscripciones/:id/diploma
   async diploma(req, res, next) {
     try {
+      const errores = validationResult(req);
+      if (!errores.isEmpty()) return responderValidacion(res, errores);
+
       const { pdfStream, curso, estudiante } =
-        await InscripcionService.generarDiploma(parseInt(req.params.id));
+        await InscripcionService.generarDiploma(parseInt(req.params.id, 10));
 
       const nombreArchivo = `diploma-${estudiante.apellido
         .replace(/[^a-zA-Z]/g, '-')

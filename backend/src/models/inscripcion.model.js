@@ -1,51 +1,57 @@
+
+
 const { pool } = require('../config/db');
 
 const InscripcionModel = {
 
-  /**
-   * Browse: listado paginado con filtros
-   */
   async findAll({ id_curso, id_estudiante, id_estado, page = 1, limit = 10 }) {
-    const offset      = (page - 1) * limit;
+    const pageNum  = parseInt(page, 10)  || 1;
+    const limitNum = parseInt(limit, 10) || 10;
+    const offset   = (pageNum - 1) * limitNum;
+
     const params      = [];
     const countParams = [];
+    let paramIndex = 1;
 
     let whereClause = 'WHERE 1=1';
 
     if (id_curso) {
-      whereClause += ` AND i.id_curso = ?`;
-      params.push(parseInt(id_curso));
-      countParams.push(parseInt(id_curso));
+      whereClause += ` AND i.id_curso = $${paramIndex++}`;
+      params.push(parseInt(id_curso, 10));
+      countParams.push(parseInt(id_curso, 10));
     }
 
     if (id_estudiante) {
-      whereClause += ` AND i.id_estudiante = ?`;
-      params.push(parseInt(id_estudiante));
-      countParams.push(parseInt(id_estudiante));
+      whereClause += ` AND i.id_estudiante = $${paramIndex++}`;
+      params.push(parseInt(id_estudiante, 10));
+      countParams.push(parseInt(id_estudiante, 10));
     }
 
     if (id_estado) {
-      whereClause += ` AND i.id_inscripcion_estado = ?`;
-      params.push(parseInt(id_estado));
-      countParams.push(parseInt(id_estado));
+      whereClause += ` AND i.id_inscripcion_estado = $${paramIndex++}`;
+      params.push(parseInt(id_estado, 10));
+      countParams.push(parseInt(id_estado, 10));
     }
 
-    const [countRows] = await pool.execute(
+    const { rows: countRows } = await pool.query(
       `SELECT COUNT(*) AS total
        FROM inscripciones i ${whereClause}`,
       countParams
     );
-    const total = countRows[0].total;
+    const total = parseInt(countRows[0].total, 10);
 
-    const [rows] = await pool.execute(
+    const limitParamIdx  = paramIndex++;
+    const offsetParamIdx = paramIndex++;
+
+    const { rows } = await pool.query(
       `SELECT
-         i.id,
+         i.id_inscripcion,
          i.id_curso,
          c.nombre                              AS curso,
          c.fecha_inicio,
          c.cantidad_horas,
          i.id_estudiante,
-         CONCAT(e.apellido, ', ', e.nombre)   AS estudiante,
+         CONCAT(e.apellido, ', ', e.nombres)   AS estudiante,
          e.documento,
          e.email,
          i.fecha_hora_inscripcion,
@@ -54,35 +60,37 @@ const InscripcionModel = {
          i.fecha_hora_modificacion,
          CONCAT(u.apellido, ', ', u.nombre)   AS usuario_modificacion
        FROM inscripciones i
-       INNER JOIN cursos               c  ON c.id  = i.id_curso
-       INNER JOIN estudiantes          e  ON e.id  = i.id_estudiante
-       INNER JOIN inscripciones_estados ie ON ie.id = i.id_inscripcion_estado
-       LEFT JOIN  usuarios             u  ON u.id  = i.id_usuario_modificacion
+       INNER JOIN cursos               c  ON c.id_curso       = i.id_curso
+       INNER JOIN estudiantes          e  ON e.id_estudiante  = i.id_estudiante
+       INNER JOIN inscripciones_estados ie ON ie.id_inscripcion_estado = i.id_inscripcion_estado
+       LEFT JOIN  usuarios             u  ON u.id_usuario     = i.id_usuario_modificacion
        ${whereClause}
        ORDER BY i.fecha_hora_inscripcion DESC
-       LIMIT ? OFFSET ?`,
-      [...params, limit, offset]
+       LIMIT $${limitParamIdx} OFFSET $${offsetParamIdx}`,
+      [...params, limitNum, offset]
     );
 
     return { data: rows, total };
   },
 
-  /**
-   * Read: obtener inscripción por ID
-   */
   async findById(id) {
-    const [rows] = await pool.execute(
+    const idNum = Number(id);
+    if (!Number.isInteger(idNum) || idNum < 1) {
+      return null;
+    }
+
+    const { rows } = await pool.query(
       `SELECT
-         i.id,
+         i.id_inscripcion,
          i.id_curso,
          c.nombre                              AS curso,
          c.fecha_inicio,
          c.cantidad_horas,
          i.id_estudiante,
-         CONCAT(e.apellido, ', ', e.nombre)   AS estudiante,
+         CONCAT(e.apellido, ', ', e.nombres)   AS estudiante,
          e.documento,
          e.apellido                            AS estudiante_apellido,
-         e.nombre                              AS estudiante_nombre,
+         e.nombres                              AS estudiante_nombre,
          e.email,
          i.fecha_hora_inscripcion,
          i.id_inscripcion_estado,
@@ -90,46 +98,38 @@ const InscripcionModel = {
          i.fecha_hora_modificacion,
          CONCAT(u.apellido, ', ', u.nombre)   AS usuario_modificacion
        FROM inscripciones i
-       INNER JOIN cursos               c  ON c.id  = i.id_curso
-       INNER JOIN estudiantes          e  ON e.id  = i.id_estudiante
-       INNER JOIN inscripciones_estados ie ON ie.id = i.id_inscripcion_estado
-       LEFT JOIN  usuarios             u  ON u.id  = i.id_usuario_modificacion
-       WHERE i.id = ?`,
+       INNER JOIN cursos               c  ON c.id_curso       = i.id_curso
+       INNER JOIN estudiantes          e  ON e.id_estudiante  = i.id_estudiante
+       INNER JOIN inscripciones_estados ie ON ie.id_inscripcion_estado = i.id_inscripcion_estado
+       LEFT JOIN  usuarios             u  ON u.id_usuario     = i.id_usuario_modificacion
+       WHERE i.id_inscripcion = $1`,
       [id]
     );
     return rows[0] || null;
   },
 
-  /**
-   * Verificar si ya existe inscripción activa para curso+estudiante
-   */
   async existeInscripcionActiva(id_curso, id_estudiante, id_estado_inscripto) {
-    const [rows] = await pool.execute(
-      `SELECT id FROM inscripciones
-       WHERE id_curso = ?
-         AND id_estudiante = ?
-         AND id_inscripcion_estado = ?
+    const { rows } = await pool.query(
+      `SELECT id_inscripcion FROM inscripciones
+       WHERE id_curso = $1
+         AND id_estudiante = $2
+         AND id_inscripcion_estado = $3
        LIMIT 1`,
       [id_curso, id_estudiante, id_estado_inscripto]
     );
     return rows.length > 0;
   },
 
-  /**
-   * Crear inscripción dentro de una transacción
-   * Incluye bloqueo optimista para evitar race conditions de cupo
-   */
   async create({ id_curso, id_estudiante, id_estado_inscripto, id_usuario }) {
-    const connection = await pool.getConnection();
+    const client = await pool.connect();
 
     try {
-      await connection.beginTransaction();
+      await client.query('BEGIN');
 
-      // ── 1. Bloquear fila del curso para lectura consistente ────────────────
-      const [cursoRows] = await connection.execute(
-        `SELECT id, inscriptos_max, id_curso_estado
+      const { rows: cursoRows } = await client.query(
+        `SELECT id_curso, inscriptos_max, id_curso_estado
          FROM cursos
-         WHERE id = ?
+         WHERE id_curso = $1
          FOR UPDATE`,
         [id_curso]
       );
@@ -140,26 +140,24 @@ const InscripcionModel = {
 
       const curso = cursoRows[0];
 
-      // ── 2. Verificar que el curso esté en estado "Activo" ─────────────────
-      const [estadoRows] = await connection.execute(
-        `SELECT descripcion FROM cursos_estados WHERE id = ? LIMIT 1`,
+      const { rows: estadoRows } = await client.query(
+        `SELECT descripcion FROM cursos_estados WHERE id_curso_estado = $1 LIMIT 1`,
         [curso.id_curso_estado]
       );
       const estadoCurso = estadoRows[0]?.descripcion?.toLowerCase();
 
-      if (estadoCurso !== 'activo') {
+      if (estadoCurso !== 'INSCRIPCIÓN ABIERTA'.toLowerCase()) {
         throw Object.assign(
           new Error(`No se pueden realizar inscripciones: el curso está ${estadoRows[0]?.descripcion}`),
           { statusCode: 422 }
         );
       }
 
-      // ── 3. Verificar inscripción duplicada ────────────────────────────────
-      const [dupRows] = await connection.execute(
-        `SELECT id FROM inscripciones
-         WHERE id_curso = ?
-           AND id_estudiante = ?
-           AND id_inscripcion_estado = ?
+      const { rows: dupRows } = await client.query(
+        `SELECT id_inscripcion FROM inscripciones
+         WHERE id_curso = $1
+           AND id_estudiante = $2
+           AND id_inscripcion_estado = $3
          LIMIT 1`,
         [id_curso, id_estudiante, id_estado_inscripto]
       );
@@ -171,12 +169,11 @@ const InscripcionModel = {
         );
       }
 
-      // ── 4. Verificar cupo disponible ──────────────────────────────────────
-      const [cupoRows] = await connection.execute(
-        `SELECT COUNT(*) AS inscriptos_actuales
+      const { rows: cupoRows } = await client.query(
+        `SELECT COUNT(*)::int AS inscriptos_actuales
          FROM inscripciones
-         WHERE id_curso = ?
-           AND id_inscripcion_estado = ?`,
+         WHERE id_curso = $1
+           AND id_inscripcion_estado = $2`,
         [id_curso, id_estado_inscripto]
       );
 
@@ -192,55 +189,49 @@ const InscripcionModel = {
         );
       }
 
-      // ── 5. Insertar inscripción ───────────────────────────────────────────
-      const [result] = await connection.execute(
+      const { rows: insertRows } = await client.query(
         `INSERT INTO inscripciones
            (id_curso, id_estudiante, fecha_hora_inscripcion,
             id_inscripcion_estado, id_usuario_modificacion, fecha_hora_modificacion)
-         VALUES (?, ?, NOW(), ?, ?, NOW())`,
+         VALUES ($1, $2, NOW(), $3, $4, NOW())
+         RETURNING id_inscripcion`,
         [id_curso, id_estudiante, id_estado_inscripto, id_usuario]
       );
 
-      await connection.commit();
-      return result.insertId;
+      await client.query('COMMIT');
+      return insertRows[0].id_inscripcion;
 
     } catch (error) {
-      await connection.rollback();
+      await client.query('ROLLBACK');
       throw error;
     } finally {
-      connection.release();
+      client.release();
     }
   },
 
-  /**
-   * Cancelar inscripción (soft delete → estado Cancelado)
-   */
   async cancelar(id, id_estado_cancelado, id_usuario) {
-    const [result] = await pool.execute(
+    const { rowCount } = await pool.query(
       `UPDATE inscripciones
-       SET id_inscripcion_estado    = ?,
-           id_usuario_modificacion  = ?,
+       SET id_inscripcion_estado    = $1,
+           id_usuario_modificacion  = $2,
            fecha_hora_modificacion  = NOW()
-       WHERE id = ?
-         AND id_inscripcion_estado != ?`,
+       WHERE id_inscripcion = $3
+         AND id_inscripcion_estado != $4`,
       [id_estado_cancelado, id_usuario, id, id_estado_cancelado]
     );
-    return result.affectedRows > 0;
+    return rowCount > 0;
   },
 
-  /**
-   * Cambiar estado a Aprobado
-   */
   async aprobar(id, id_estado_aprobado, id_usuario) {
-    const [result] = await pool.execute(
+    const { rowCount } = await pool.query(
       `UPDATE inscripciones
-       SET id_inscripcion_estado   = ?,
-           id_usuario_modificacion = ?,
+       SET id_inscripcion_estado   = $1,
+           id_usuario_modificacion = $2,
            fecha_hora_modificacion = NOW()
-       WHERE id = ?`,
+       WHERE id_inscripcion = $3`,
       [id_estado_aprobado, id_usuario, id]
     );
-    return result.affectedRows > 0;
+    return rowCount > 0;
   },
 };
 

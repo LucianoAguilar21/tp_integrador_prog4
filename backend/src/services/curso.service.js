@@ -105,13 +105,10 @@ const CursoService = {
     }
 
     // Obtener ID del estado "Inactivo"
-    const estados = await CursoEstadoModel.findAll();
-    const estadoInactivo = estados.find(
-      (e) => e.descripcion.toLowerCase() === 'inactivo'
-    );
+    const estadoInactivo = await CursoEstadoModel.findByDescripcion('INSCRIPCIÓN CERRADA');
     if (!estadoInactivo) throw crearError('Estado Inactivo no encontrado', 500);
 
-    await CursoModel.softDelete(id, estadoInactivo.id, id_usuario);
+    await CursoModel.softDelete(id, estadoInactivo.id_curso_estado, id_usuario);
     return { id, mensaje: 'Curso desactivado correctamente' };
   },
 

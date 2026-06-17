@@ -16,6 +16,7 @@ document.getElementById('fechaHoy').textContent =
 async function cargarDashboard() {
   try {
     const { data } = await Api.get('/dashboard');
+    console.log('Dashboard data:', data);
     const { totales, cursos_activos, ultimas_inscripciones } = data;
 
     // Stats

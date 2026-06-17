@@ -39,7 +39,12 @@ const InscripcionService = {
   },
 
   async obtenerPorId(id) {
-    const inscripcion = await InscripcionModel.findById(id);
+    const idNum = parseInt(id, 10);
+    if (!Number.isInteger(idNum) || idNum < 1) {
+      throw crearError('ID de inscripción inválido', 400);
+    }
+
+    const inscripcion = await InscripcionModel.findById(idNum);
     if (!inscripcion) throw crearError('Inscripción no encontrada', 404);
     return inscripcion;
   },
@@ -56,12 +61,17 @@ const InscripcionService = {
       throw crearError('No se puede inscribir un estudiante inactivo', 422);
     }
 
-    // ── Obtener ID del estado "Inscripto" ─────────────────────────────────────
+    // ── Obtener ID del estado "CONFIRMADA" ─────────────────────────────────────
     const id_estado_inscripto = await InscripcionEstadoModel
-      .getIdPorDescripcion('Inscripto');
+      .getIdPorDescripcion('CONFIRMADA');
 
     if (!id_estado_inscripto) {
-      throw crearError('Estado "Inscripto" no configurado en el sistema', 500);
+      const estados = await InscripcionEstadoModel.findAll();
+      const lista = estados.map((e) => e.descripcion).join(', ');
+      throw crearError(
+        `Estado "Inscripto" no configurado en el sistema\nESTADOS:\n${lista}`,
+        500
+      );
     }
 
     // ── La transacción + validaciones de cupo/duplicado están en el model ─────
@@ -87,7 +97,12 @@ const InscripcionService = {
       .getIdPorDescripcion('Cancelado');
 
     if (!id_estado_cancelado) {
-      throw crearError('Estado "Cancelado" no configurado en el sistema', 500);
+      const estados = await InscripcionEstadoModel.findAll();
+      const lista = estados.map((e) => e.descripcion).join(', ');
+      throw crearError(
+        `Estado "Cancelado" no configurado en el sistema\nESTADOS:\n${lista}`,
+        500
+      );
     }
 
     const cancelada = await InscripcionModel.cancelar(id, id_estado_cancelado, id_usuario);
@@ -112,7 +127,12 @@ const InscripcionService = {
       .getIdPorDescripcion('Aprobado');
 
     if (!id_estado_aprobado) {
-      throw crearError('Estado "Aprobado" no configurado en el sistema', 500);
+      const estados = await InscripcionEstadoModel.findAll();
+      const lista = estados.map((e) => e.descripcion).join(', ');
+      throw crearError(
+        `Estado "Aprobado" no configurado en el sistema\nESTADOS:\n${lista}`,
+        500
+      );
     }
 
     await InscripcionModel.aprobar(id, id_estado_aprobado, id_usuario);

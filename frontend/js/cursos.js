@@ -29,13 +29,14 @@ async function cargarEstados() {
     // Filtro
     const filtro = document.getElementById('filtroEstado');
     data.forEach(e => {
-      filtro.innerHTML += `<option value="${e.id}">${e.descripcion}</option>`;
+      console.log(e);
+      filtro.innerHTML += `<option value="${e.id_curso_estado}">${e.descripcion}</option>`;
     });
 
     // Select del formulario
     const select = document.getElementById('id_curso_estado');
     data.forEach(e => {
-      select.innerHTML += `<option value="${e.id}">${e.descripcion}</option>`;
+      select.innerHTML += `<option value="${e.id_curso_estado}">${e.descripcion}</option>`;
     });
   } catch (err) {
     Toast.error('Error al cargar estados', err.message);
@@ -64,33 +65,8 @@ async function cargarCursos() {
           <p>Pruebe con otros criterios de búsqueda</p>
         </div></td></tr>`;
     } else {
-      // tbody.innerHTML = res.data.map(c => `
-      //   <tr>
-      //     <td>
-      //       <div style="font-weight:600;color:var(--color-primario)">${c.nombre}</div>
-      //       ${c.descripcion
-      //         ? `<div style="font-size:.78rem;color:var(--color-texto-sec);
-      //                        white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-      //                        max-width:280px">${c.descripcion}</div>`
-      //         : ''}
-      //     </td>
-      //     <td style="white-space:nowrap">${Helpers.formatFecha(c.fecha_inicio)}</td>
-      //     <td style="text-align:center">${c.cantidad_horas}h</td>
-      //     <td>${Helpers.cupoHtml(c.inscriptos_actuales, c.inscriptos_max)}</td>
-      //     <td>${Helpers.badgeEstadoCurso(c.estado)}</td>
-      //     <td>
-      //       <div class="acciones">
-      //         <button class="btn-icon" title="Ver inscriptos"
-      //           onclick="verInscriptos(${c.id}, '${escapar(c.nombre)}')">👥</button>
-      //         <button class="btn-icon exito" title="Editar"
-      //           onclick="editarCurso(${c.id})">✏️</button>
-      //         <button class="btn-icon" title="Descargar listado PDF"
-      //           onclick="descargarListado(${c.id}, '${escapar(c.nombre)}', this)">📄</button>
-      //         <button class="btn-icon peligro" title="Desactivar"
-      //           onclick="eliminarCurso(${c.id}, '${escapar(c.nombre)}')">🗑</button>
-      //       </div>
-      //     </td>
-      //   </tr>`).join('');
+    
+      
       tbody.innerHTML = res.data.map(c => `
   <tr>
     <td data-label="Nombre">
@@ -110,13 +86,13 @@ async function cargarCursos() {
     <td class="td-acciones">
       <div class="acciones">
         <button class="btn-icon" title="Ver inscriptos"
-          onclick="verInscriptos(${c.id}, '${escapar(c.nombre)}')">👥</button>
+          onclick="verInscriptos(${c.id_curso}, '${escapar(c.nombre)}')">👥</button>
         <button class="btn-icon exito" title="Editar"
-          onclick="editarCurso(${c.id})">✏️</button>
+          onclick="editarCurso(${c.id_curso})">✏️</button>
         <button class="btn-icon" title="Descargar PDF"
-          onclick="descargarListado(${c.id}, '${escapar(c.nombre)}', this)">📄</button>
+          onclick="descargarListado(${c.id_curso}, '${escapar(c.nombre)}', this)">📄</button>
         <button class="btn-icon peligro" title="Desactivar"
-          onclick="eliminarCurso(${c.id}, '${escapar(c.nombre)}')">🗑</button>
+          onclick="eliminarCurso(${c.id_curso}, '${escapar(c.nombre)}')">🗑</button>
       </div>
     </td>
   </tr>`).join('');
@@ -135,9 +111,9 @@ async function cargarCursos() {
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 // Escapa comillas simples para uso en atributos HTML onclick
-function escapar(str) {
+window.escapar = (str) => {
   return (str || '').replace(/'/g, "\\'");
-}
+};
 
 // ─── Ver inscriptos en modal ────────────────────────────────────────────────────
 window.verInscriptos = async (id, nombre) => {
@@ -161,6 +137,7 @@ window.verInscriptos = async (id, nombre) => {
           <p>Aún no hay estudiantes inscriptos en este curso</p>
         </div></td></tr>`;
     } else {
+      
       tbody.innerHTML = inscriptos.map((i, idx) => `
         <tr>
           <td>${idx + 1}</td>
@@ -219,7 +196,7 @@ window.descargarListado = async (id, nombre, btnEl) => {
 function abrirFormulario(curso = null) {
   Helpers.limpiarErrores('formCurso');
 
-  document.getElementById('cursoId').value          = curso?.id              || '';
+  document.getElementById('cursoId').value          = curso?.id_curso              || '';
   document.getElementById('nombre').value           = curso?.nombre          || '';
   document.getElementById('descripcion').value      = curso?.descripcion     || '';
   document.getElementById('fecha_inicio').value     =
@@ -250,6 +227,10 @@ document.getElementById('btnCerrarModal')
   ?.addEventListener('click', () => Modal.cerrar('modalCurso'));
 document.getElementById('btnCancelarForm')
   ?.addEventListener('click', () => Modal.cerrar('modalCurso'));
+document.getElementById('btnCerrarInscriptos')
+  ?.addEventListener('click', () => Modal.cerrar('modalInscriptos'));
+document.getElementById('btnCerrarInscriptosFooter')
+  ?.addEventListener('click', () => Modal.cerrar('modalInscriptos'));
 
 // ─── Guardar (crear / actualizar) ─────────────────────────────────────────────
 document.getElementById('btnGuardar')

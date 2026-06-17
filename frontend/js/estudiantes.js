@@ -68,7 +68,7 @@ async function cargarEstudiantes() {
       <code style="font-size:.83rem">${e.documento}</code>
     </td>
     <td data-label="Apellido y Nombre">
-      <strong>${e.apellido}</strong>, ${e.nombre}
+      <strong>${e.apellido}</strong>, ${e.nombres}
     </td>
     <td data-label="Email">${e.email}</td>
     <td data-label="Fecha Nac.">${Helpers.formatFecha(e.fecha_nacimiento)}</td>
@@ -76,14 +76,14 @@ async function cargarEstudiantes() {
     <td class="td-acciones">
       <div class="acciones">
         <button class="btn-icon" title="Ver detalles"
-          onclick="verEstudiante(${e.id})">👁</button>
+          onclick="verEstudiante(${e.id_estudiante})">👁</button>
         ${e.activo
           ? `<button class="btn-icon exito" title="Editar"
-               onclick="editarEstudiante(${e.id})">✏️</button>
+               onclick="editarEstudiante(${e.id_estudiante})">✏️</button>
              <button class="btn-icon peligro" title="Desactivar"
-               onclick="eliminarEstudiante(${e.id}, '${e.apellido} ${e.nombre}')">🗑</button>`
+               onclick="eliminarEstudiante(${e.id_estudiante}, '${e.apellido} ${e.nombres}')">🗑</button>`
           : `<button class="btn-icon" title="Restaurar"
-               onclick="restaurarEstudiante(${e.id}, '${e.apellido} ${e.nombre}')">♻️</button>`
+               onclick="restaurarEstudiante(${e.id_estudiante}, '${e.apellido} ${e.nombres}')">♻️</button>`
         }
       </div>
     </td>
@@ -106,7 +106,7 @@ window.verEstudiante = async (id) => {
   try {
     const { data: e } = await Api.get(`/estudiantes/${id}`);
     Modal.confirmar({
-      titulo: `👁 ${e.apellido}, ${e.nombre}`,
+      titulo: `👁 ${e.apellido}, ${e.nombres}`,
       mensaje: `
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:.875rem">
           <div><strong>Documento:</strong><br>${e.documento}</div>
@@ -128,7 +128,7 @@ window.verEstudiante = async (id) => {
 // ─── Formulario Crear/Editar ───────────────────────────────────────────────────
 function abrirFormulario(estudiante = null) {
   Helpers.limpiarErrores('formEstudiante');
-  document.getElementById('estudianteId').value       = estudiante?.id       || '';
+  document.getElementById('estudianteId').value       = estudiante?.id_estudiante       || '';
   document.getElementById('apellido').value           = estudiante?.apellido  || '';
   document.getElementById('nombre').value             = estudiante?.nombre    || '';
   document.getElementById('documento').value          = estudiante?.documento || '';
