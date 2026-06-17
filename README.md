@@ -45,8 +45,8 @@ NODE_ENV=development
 
 # Base de datos
 DB_HOST=localhost
-DB_PORT=3306
-DB_USER=root
+DB_PORT=5432
+DB_USER=postgres
 DB_PASSWORD=password
 DB_NAME=facultad_inscripciones
 
