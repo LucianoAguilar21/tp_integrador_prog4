@@ -112,7 +112,8 @@ const AuthService = {
       await bcrypt.compare(contrasena, HASH_DUMMY);
       throw Object.assign(new Error(ERROR_CREDENCIALES), { statusCode: 401 });
     }
-
+    // let contrasenia_hash = await bcrypt.hash(contrasena, SALT_ROUNDS);
+    // console.log('Hash de contraseña recibido en login:', contrasenia_hash); //  Verificar contraseña recibida
     const contrasenaValida = await bcrypt.compare(contrasena, usuario.contrasenia);
     if (!contrasenaValida) {
       throw Object.assign(new Error(ERROR_CREDENCIALES), { statusCode: 401 });
