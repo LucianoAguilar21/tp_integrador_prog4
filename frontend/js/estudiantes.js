@@ -109,7 +109,7 @@ function abrirFormulario(estudiante = null) {
   Helpers.limpiarErrores('formEstudiante');
   document.getElementById('estudianteId').value       = estudiante?.id_estudiante       || '';
   document.getElementById('apellido').value           = estudiante?.apellido  || '';
-  document.getElementById('nombre').value             = estudiante?.nombre    || '';
+  document.getElementById('nombre').value             = estudiante?.nombres    || '';
   document.getElementById('documento').value          = estudiante?.documento || '';
   document.getElementById('email').value              = estudiante?.email     || '';
   document.getElementById('fecha_nacimiento').value   =
