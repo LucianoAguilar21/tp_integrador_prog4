@@ -85,6 +85,8 @@ Importar el dump inicial disponible en:
 
 https://campus.uner.edu.ar/fcad/pluginfile.php?file=%2F131543%2Fmod_resource%2Fcontent%2F5%2F01-Creaci%C3%B3n%20y%20datos%20iniciales.sql
 
+### INSERT DE DATOS
+```sql
 INSERT INTO public.cursos 
 (id_curso, nombre, descripcion, fecha_inicio, cantidad_horas, inscriptos_max, id_curso_estado, id_usuario_modificacion, fecha_hora_modificacion)
 VALUES
@@ -122,11 +124,11 @@ INSERT INTO public.usuarios
 (id_usuario, apellido, nombre, nombre_usuario, contrasenia, activo)
 VALUES
 (1, 'BIANCHI', 'LUCIANA', 'lbianchi', '$2b$12$D/kJQiRAwaah3y0Ufa8CT.i/AzkbfEdya5.LaKDqqMnNB8DkB2Wny', 1),
-(2, 'FERNÁNDEZ', 'LORENZO', 'lfernandez', '7845c21dcefd691b0d70063da7c68bcb8a25ac29d0a1dee5fdb8800870f9afae', 1),
-(3, 'RINCÓN', 'MATEO', 'mrincon', 'ade69c2785589f42b82dd048c0f09dcd485c74ada573d334731aa99d7b4627fd', 1),
-(4, 'DECHAT', 'GUILIANA', 'gdechat', 'e0b0e46fd41b7af118b2a65046c207d5b3b8a1c03bc2f9472e7e76efe7a6ed0f', 1),
-(5, 'NOVELLO', 'IGNACIO', 'inovello', 'a1d19e9e32012744ce6864d933c25417bd8faf6b320bcf3ebe91606f1f7f36bc', 1);
-
+(2, 'FERNÁNDEZ', 'LORENZO', 'lfernandez', '$2b$12$D/kJQiRAwaah3y0Ufa8CT.i/AzkbfEdya5.LaKDqqMnNB8DkB2Wny', 1),
+(3, 'RINCÓN', 'MATEO', 'mrincon', '$2b$12$D/kJQiRAwaah3y0Ufa8CT.i/AzkbfEdya5.LaKDqqMnNB8DkB2Wny', 1),
+(4, 'DECHAT', 'GUILIANA', 'gdechat', '$2b$12$D/kJQiRAwaah3y0Ufa8CT.i/AzkbfEdya5.LaKDqqMnNB8DkB2Wny', 1),
+(5, 'NOVELLO', 'IGNACIO', 'inovello', '$2b$12$D/kJQiRAwaah3y0Ufa8CT.i/AzkbfEdya5.LaKDqqMnNB8DkB2Wny', 1);
+```
 ---
 
 # Frontend
