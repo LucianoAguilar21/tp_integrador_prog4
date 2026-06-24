@@ -186,8 +186,13 @@ const Helpers = {
   badgeEstadoInscripcion(estado) {
     const mapa = {
       'inscripto':  'badge-azul',
+      'confirmada': 'badge-azul',
+      'confirmed':  'badge-azul',
+      'pending':    'badge-azul',
       'aprobado':   'badge-verde',
+      'approved':   'badge-verde',
       'cancelado':  'badge-rojo',
+      'cancelled':  'badge-rojo',
     };
     const clase = mapa[estado?.toLowerCase()] || 'badge-gris';
     return `<span class="badge ${clase}">${estado || '—'}</span>`;

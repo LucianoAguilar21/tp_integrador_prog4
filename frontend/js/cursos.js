@@ -131,7 +131,7 @@ window.verInscriptos = async (id, nombre) => {
     const { inscriptos } = data;
 
     if (!inscriptos.length) {
-      tbody.innerHTML = `<tr><td colspan="6">
+      tbody.innerHTML = `<tr><td colspan="7">
         <div class="estado-vacio">
           <div class="estado-vacio-icono">👥</div>
           <h3>Sin inscriptos</h3>
@@ -139,7 +139,11 @@ window.verInscriptos = async (id, nombre) => {
         </div></td></tr>`;
     } else {
       
-      tbody.innerHTML = inscriptos.map((i, idx) => `
+      tbody.innerHTML = inscriptos.map((i, idx) => {
+        const esAprobado = i.estado_inscripcion?.toLowerCase() === 'aprobado';
+        const nombreEstudiante = `${i.apellido} ${i.nombres}`;
+
+        return `
         <tr>
           <td>${idx + 1}</td>
           <td><code style="font-size:.82rem">${i.documento}</code></td>
@@ -148,11 +152,20 @@ window.verInscriptos = async (id, nombre) => {
           <td style="font-size:.78rem;white-space:nowrap">
             ${Helpers.formatFechaHora(i.fecha_hora_inscripcion)}</td>
           <td>${Helpers.badgeEstadoInscripcion(i.estado_inscripcion)}</td>
-        </tr>`).join('');
+          <td>
+            ${esAprobado ? `
+              <button class="btn-icon exito" title="Descargar diploma"
+                onclick="descargarDiplomaCurso(${id}, ${i.id_estudiante}, '${escapar(nombreEstudiante)}', this)">
+                🏅
+              </button>
+            ` : ''}
+          </td>
+        </tr>`;
+      }).join('');
     }
   } catch (err) {
     Toast.error('Error al cargar inscriptos', err.message);
-    tbody.innerHTML = `<tr><td colspan="6" class="tabla-vacia">Error al cargar datos</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" class="tabla-vacia">Error al cargar datos</td></tr>`;
   }
 };
 
@@ -190,6 +203,21 @@ window.descargarListado = async (id, nombre, btnEl) => {
     Toast.error('Error al generar PDF', err.message);
   } finally {
     Helpers.setLoading(btnEl, false, '📄');
+  }
+};
+
+window.descargarDiplomaCurso = async (cursoId, estudianteId, nombre, btnEl) => {
+  if (btnEl) Helpers.setLoading(btnEl, true);
+  try {
+    await Api.descargarPdf(
+      `/cursos/${cursoId}/pdf/diploma/${estudianteId}`,
+      `diploma-${nombre.replace(/[^a-zA-Z0-9]/g, '-').toLowerCase()}.pdf`
+    );
+    Toast.exito('Diploma generado', `Diploma de ${nombre} descargado`);
+  } catch (err) {
+    Toast.error('Error al generar diploma', err.message);
+  } finally {
+    if (btnEl) Helpers.setLoading(btnEl, false, '🏅');
   }
 };
 

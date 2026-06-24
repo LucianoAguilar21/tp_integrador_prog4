@@ -18,6 +18,10 @@ let estado = {
   id_estado:     '',
 };
 
+const ESTADOS_PENDIENTES = ['inscripto', 'confirmada', 'confirmed', 'pending'];
+const ESTADOS_APROBADOS = ['aprobado', 'approved'];
+const ESTADOS_CANCELADOS = ['cancelado', 'cancelled'];
+
 // Cache de cursos para el info de cupo
 let cacheCursos = [];
 
@@ -191,9 +195,10 @@ async function cargarInscripciones() {
       //   </tr>`;
       // }).join('');
       tbody.innerHTML = res.data.map(i => {
-  const esInscripto = i.estado?.toLowerCase() === 'inscripto';
-  const esAprobado  = i.estado?.toLowerCase() === 'aprobado';
-  const esCancelado = i.estado?.toLowerCase() === 'cancelado';
+  const estadoNormalizado = i.estado?.toLowerCase();
+  const esInscripto = ESTADOS_PENDIENTES.includes(estadoNormalizado);
+  const esAprobado  = ESTADOS_APROBADOS.includes(estadoNormalizado);
+  const esCancelado = ESTADOS_CANCELADOS.includes(estadoNormalizado);
 
   return `
   <tr>
@@ -259,7 +264,9 @@ window.verDetalle = async (id) => {
   try {
     const { data: i } = await Api.get(`/inscripciones/${id}`);
 
-    const esAprobado = i.estado?.toLowerCase() === 'aprobado';
+    const estadoNormalizado = i.estado?.toLowerCase();
+    const esAprobado = ESTADOS_APROBADOS.includes(estadoNormalizado);
+    const esPendiente = ESTADOS_PENDIENTES.includes(estadoNormalizado);
 
     document.getElementById('modalDetalleBody').innerHTML = `
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;font-size:.875rem">
@@ -301,6 +308,12 @@ window.verDetalle = async (id) => {
     const footer = document.getElementById('modalDetalleFooter');
     footer.innerHTML = `
       <button class="btn btn-secundario" onclick="Modal.cerrar('modalDetalle')">Cerrar</button>
+      ${esPendiente
+        ? `<button class="btn btn-exito"
+             onclick="aprobarInscripcion(${i.id}, '${escapar(i.estudiante)}')">
+             ✅ Aprobar Inscripción
+           </button>`
+        : ''}
       ${esAprobado
         ? `<button class="btn btn-exito"
              onclick="descargarDiploma(${i.id}, '${escapar(i.estudiante)}', this)">

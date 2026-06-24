@@ -8,7 +8,7 @@ const InscripcionEstadoModel = {
     const { rows } = await pool.query(
       `SELECT id_inscripcion_estado, descripcion
        FROM inscripciones_estados
-       WHERE es_activo = 1
+       WHERE es_activo <> 0
        ORDER BY id_inscripcion_estado`
     );
     return rows;
@@ -16,7 +16,9 @@ const InscripcionEstadoModel = {
 
   async exists(id) {
     const { rows } = await pool.query(
-      `SELECT id_inscripcion_estado FROM inscripciones_estados WHERE id_inscripcion_estado = $1 AND es_activo = 1`,
+      `SELECT id_inscripcion_estado FROM inscripciones_estados
+       WHERE id_inscripcion_estado = $1
+         AND es_activo <> 0`,
       [id]
     );
     return rows.length > 0;
@@ -25,7 +27,8 @@ const InscripcionEstadoModel = {
   async getIdPorDescripcion(descripcion) {
     const { rows } = await pool.query(
       `SELECT id_inscripcion_estado FROM inscripciones_estados
-       WHERE descripcion ILIKE $1 AND es_activo = 1
+       WHERE descripcion ILIKE $1
+         AND es_activo <> 0
        LIMIT 1`,
       [descripcion]
     );

@@ -7,6 +7,18 @@ const PdfService             = require('./pdf.service');
 const crearError = (mensaje, statusCode = 400) =>
   Object.assign(new Error(mensaje), { statusCode });
 
+const ESTADOS_PENDIENTES = ['inscripto', 'confirmada', 'confirmed', 'pending'];
+const ESTADOS_APROBADOS = ['aprobado', 'approved'];
+const ESTADOS_CANCELADOS = ['cancelado', 'cancelled'];
+
+async function obtenerIdEstado(...alternativas) {
+  for (const descripcion of alternativas) {
+    const id = await InscripcionEstadoModel.getIdPorDescripcion(descripcion);
+    if (id) return id;
+  }
+  return null;
+}
+
 const InscripcionService = {
 
   async listarEstados() {
@@ -61,9 +73,8 @@ const InscripcionService = {
       throw crearError('No se puede inscribir un estudiante inactivo', 422);
     }
 
-    // ── Obtener ID del estado "CONFIRMADA" ─────────────────────────────────────
-    const id_estado_inscripto = await InscripcionEstadoModel
-      .getIdPorDescripcion('CONFIRMADA');
+    // ── Obtener ID del estado "CONFIRMADA" / "CONFIRMED" ──────────────────
+    const id_estado_inscripto = await obtenerIdEstado('CONFIRMADA', 'CONFIRMED');
 
     if (!id_estado_inscripto) {
       const estados = await InscripcionEstadoModel.findAll();
@@ -89,12 +100,11 @@ const InscripcionService = {
     const inscripcion = await InscripcionModel.findById(id);
     if (!inscripcion) throw crearError('Inscripción no encontrada', 404);
 
-    if (inscripcion.estado.toLowerCase() === 'cancelado') {
+    if (ESTADOS_CANCELADOS.includes(inscripcion.estado?.toLowerCase())) {
       throw crearError('La inscripción ya se encuentra cancelada', 400);
     }
 
-    const id_estado_cancelado = await InscripcionEstadoModel
-      .getIdPorDescripcion('Cancelado');
+    const id_estado_cancelado = await obtenerIdEstado('Cancelado', 'Cancelled');
 
     if (!id_estado_cancelado) {
       const estados = await InscripcionEstadoModel.findAll();
@@ -115,7 +125,7 @@ const InscripcionService = {
     const inscripcion = await InscripcionModel.findById(id);
     if (!inscripcion) throw crearError('Inscripción no encontrada', 404);
 
-    if (inscripcion.estado.toLowerCase() !== 'inscripto') {
+    if (!ESTADOS_PENDIENTES.includes(inscripcion.estado?.toLowerCase())) {
       throw crearError(
         `Solo se pueden aprobar inscripciones en estado "Inscripto". ` +
         `Estado actual: "${inscripcion.estado}"`,
@@ -123,8 +133,7 @@ const InscripcionService = {
       );
     }
 
-    const id_estado_aprobado = await InscripcionEstadoModel
-      .getIdPorDescripcion('Aprobado');
+    const id_estado_aprobado = await obtenerIdEstado('Aprobado', 'APPROVED', 'Approved');
 
     if (!id_estado_aprobado) {
       const estados = await InscripcionEstadoModel.findAll();
@@ -143,7 +152,7 @@ const InscripcionService = {
     const inscripcion = await InscripcionModel.findById(id);
     if (!inscripcion) throw crearError('Inscripción no encontrada', 404);
 
-    if (inscripcion.estado.toLowerCase() !== 'aprobado') {
+    if (!ESTADOS_APROBADOS.includes(inscripcion.estado?.toLowerCase())) {
       throw crearError(
         'Solo se pueden generar diplomas para inscripciones aprobadas',
         422
