@@ -87,6 +87,10 @@ https://campus.uner.edu.ar/fcad/pluginfile.php?file=%2F131543%2Fmod_resource%2Fc
 
 ### INSERT DE DATOS
 ```sql
+
+-- Estado aprobado para diploma
+INSERT INTO public.inscripciones_estados (id_inscripcion_estado,descripcion,es_activo) VALUES (3,'APROBADO',2)
+
 INSERT INTO public.cursos 
 (id_curso, nombre, descripcion, fecha_inicio, cantidad_horas, inscriptos_max, id_curso_estado, id_usuario_modificacion, fecha_hora_modificacion)
 VALUES
